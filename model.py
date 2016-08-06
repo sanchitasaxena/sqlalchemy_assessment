@@ -17,45 +17,26 @@ class Model(db.Model):
 
     __tablename__ = "models"
 
-    model_id = db.Column(db.Integer,
-                        primary_key=True,
-                        autoincrement=True)
-
-    year =  db.Column(db.Integer,
-                    nullable=False)
-
-    brand_name = db.Column(db.String(50),
-                            nullable=True)
-
-    name = db.Column(db.String(50),
-                    nullable=False)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    year = db.Column(db.Integer,nullable=False)
+    brand_name = db.Column(db.String(50),nullable=True)
+    name = db.Column(db.String(50),nullable=False)
 
 
 class Brand(db.Model):
     """Car brand."""
 
     __tablename__ = "brands"
-    brand_id = db.Column(db.Integer,
-                        primary_key=True,
-                        autoincrement=True)
-
-    name = db.Column(db.String(50),
-                    db.ForeignKey('models.brand_name'),
-                    nullable=False)
-
-    founded =  db.Column(db.Integer,
-                        nullable=False)
-
-    headquarters =  db.Column(db.String(50),
-                            nullable=False)
-
-    discontinued = db.Column(db.Integer,
-                            nullable=True)
 
 
-    model = db.relationship('Model',
-                            db.backref('brands',
-                            order_by=brand_id)
+    id = db.Column(db.Integer,autoincrement=True,primary_key=True)
+    name = db.Column(db.String(50),db.ForeignKey('models.brand_name'))
+    founded = db.Column(db.Integer,nullable=True)
+    headquarters = db.Column(db.String(50))
+    discontinued = db.Column(db.Integer)
+
+    model = db.relationship("Model",
+                            backref=db.backref("brands", order_by=name))
 
 
 
