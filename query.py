@@ -20,7 +20,6 @@ init_app()
 
 
 # Get the brand with the **id** of 8.
-
 brand = Brand.query.get(8)
 
 # Get all models with the **name** Corvette and the **brand_name** Chevrolet.
@@ -37,16 +36,16 @@ brands = Brand.query.filter(Brand.founded > 1920).all()
 models = Model.query.filter(Model.name.like('Cor%')).all()
 
 # Get all brands that were founded in 1903 and that are not yet discontinued.
-brands = Brand.query.filter(Brand.founded==1903, Brand.discontinued.is_(None)).all()
-# Get all brands that are either 1) discontinued (at any time) or 2) founded 
+brands = Brand.query.filter(Brand.founded == 1903, Brand.discontinued.is_(None)).all()
+# Get all brands that are either 1) discontinued (at any time) or 2) founded
 # before 1950.
-brands = Brand.query.filter(Brand.discontinued.isnot(None), Brand.founded < 1950).all()
+brands = Brand.query.filter(db.or_(Brand.discontinued.isnot(None), Brand.founded < 1950)).all()
 
 # Get any model whose brand_name is not Chevrolet.
 
-model = Model.query.filter(Brand.name.isnot('Chevrolet')) #having trouble.. tried
+model = Model.query.filter(Brand.name.isnot('Chevrolet')).first() #having trouble.. tried
 #this one too, basically neither works with the .all() or .first()
-# >> Model.query.filter(Model.brand_name != 'Chevrolet')
+model = Model.query.filter(Model.brand_name != 'Chevrolet').first()
 
 
 # Fill in the following functions. (See directions for more info.)
@@ -55,29 +54,41 @@ def get_model_info(year):
     '''Takes in a year, and prints out each model, brand_name, and brand
     headquarters for that year using only ONE database query.'''
 
-    pass
+    models = Model.query.filter_by(year=year).all()
+
+    for model in models:
+        print 'Model: %s, Brand: %s, HQ: %s' % (model.name,
+                                                model.brand_name,
+                                                model.brands.headquarters)
 
 def get_brands_summary():
     '''Prints out each brand name, and each model name for that brand
      using only ONE database query.'''
 
-    pass
+    brands = db.session.query(Brand, Model).join(Model).all()
+
+    for brand, model in brands:
+        print brand.name, model.name
 
 # -------------------------------------------------------------------
 # Part 2.5: Discussion Questions (Include your answers as comments.)
 
 # 1. What is the returned value and datatype of ``Brand.query.filter_by(name='Ford')``?
-    # the object containing the name 'Ford'
+    # the object containing the name 'Ford' with all of the attributes 
 # 2. In your own words, what is an association table, and what *type* of relationship
 # does an association table manage?
-    #
+    #association table is a table created to give a relationship to two different tables
+    #the association table doesn't really have meaningful columns in the sense that
+    #the data only shows the way the two other tables are related to each other
+    #no foreign keys... 
 
 # -------------------------------------------------------------------
 # Part 3
 
 def search_brands_by_name(mystr):
-    pass
+    return Brand.query.filter((db.or_(Brand.name.like('%'+mystr+'%'),
+                                Brand.name == mystr)).all()
 
 
-def get_models_between(start_year, end_year):
-    pass
+def get_models_between(a, b):
+    return Model.query.filter(Model.year > a, Model.year < b).all()
